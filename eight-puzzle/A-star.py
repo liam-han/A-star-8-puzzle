@@ -1,8 +1,7 @@
-import numpy as np
+import copy
 
-
-""" class to create new node 
-    holds 
+""" class to create new node
+    holds essential variables
 """
 
 
@@ -14,14 +13,10 @@ class Node():
         self.initial_state = []
         self.new_state = []
         self.goal_state = [['1', '2', '3'], ['4', '5', '6'], ['7', '8', '0']]
-        self.size = (3, 3) #default 8 puzzle ( 3 x 3 )
-        self.index = (0,0)
+        self.size = (3, 3)  # default 8 puzzle ( 3 x 3 )
+        self.index = (0, 0)
+        self.missing = 0
 
-
-new_node = Node()
-new_node.distance = 100
-
-print(str(new_node.distance) + "ok")
 
 """ switch options"""
 
@@ -35,8 +30,7 @@ def numbers_to_strings(argument):
     # return switcher.get(puzzle_choice)
 
 
-test = np.array([[0, 0, 0], [1, 1, 1], [2, 2, 2]])
-
+# ZZZZZZtest = np.array([[0, 0, 0], [1, 1, 1], [2, 2, 2]])
 
 
 num = [[1, 2, 3], [4, 8, 6], [7, 'b', 9]]
@@ -101,16 +95,16 @@ def convert_matrix_2d(temp2, rows, col):
 """ Takes 2D ARRAY and prints matrix"""
 
 
-def print_matrix(matrix):
-    rows = matrix.size[0]
-    col = matrix.size[1]
+def print_matrix(node):
+    rows = node.size[0]
+    col = node.size[1]
 
     for x in range(rows):
         for y in range(col):
-            if matrix.initial_state[x][y] == '0' or matrix.initial_state[x][y] == 0:
-                print('b', end='')
+            if node.initial_state[x][y] == '0' or node.initial_state[x][y] == 0:
+                print('b', end=' ')
             else:
-                print(matrix.initial_state[x][y], end=' ')
+                print(node.initial_state[x][y], end=' ')
         print("\n", end='')
 
     print("\n", end='')
@@ -152,6 +146,7 @@ def misplaced_tiles(Node):
                 counter += 1
     return counter
 
+
 def str_to_int(matrix, m, n):
     matrix2 = []
     for i in range(m):
@@ -172,13 +167,12 @@ def find_index(value, node):
     for x in range(row):
         for y in range(col):
             if node.initial_state[x][y] == value:
-                print([x, y])
+                # print([x, y])
                 return [x, y]
 
 
 def is_legal(node):
-
-   """ if node.index[0] > node.size[0] or node.index[0] < 0:
+    """ if node.index[0] > node.size[0] or node.index[0] < 0:
         return False
     if node.index[1] > node.size[1] or node.index[1] < 0:
         return False
@@ -186,39 +180,49 @@ def is_legal(node):
         return True
     """
 
-   index = node.index
+    index = node.index
 
 
-def move_up(puzzle, index):
-    x = index[0]
-    y = index[1]
-    puzzle[x][y], puzzle[x - 1][y] = puzzle[x - 1][y], puzzle[x][y]
+def move_up(node):
+    x = node.index[0]
+    y = node.index[1]
+    node.new_state = copy.deepcopy(node.initial_state)
+    new_state = node.new_state
+    if x > 0:
+        new_state[x][y], new_state[x - 1][y] = new_state[x - 1][y], new_state[x][y]
+    else:
+        raise IndexError
     # sample [2,2] to [1,2]
 
 
-def move_down(puzzle, index):
-    x = index[0]
-    y = index[1]
-    puzzle[x][y], puzzle[x + 1][y] = puzzle[x + 1][y], puzzle[x][y]
+def move_down(node):
+    x = node.index[0]
+    y = node.index[1]
+    node.new_state = copy.deepcopy(node.initial_state)
+    new_state = node.new_state
+    new_state[x][y], new_state[x + 1][y] = new_state[x + 1][y], new_state[x][y]
     # sample [1,2] to [2,2]
 
 
-def move_left(puzzle, index):
-    x = index[0]
-    y = index[1]
-    puzzle[x][y], puzzle[x][y - 1] = puzzle[x][y - 1], puzzle[x][y]
+def move_left(node):
+    x = node.index[0]
+    y = node.index[1]
+    new_state = node.initial_state
+    if y > 0:
+        new_state[x][y], new_state[x][y - 1] = new_state[x][y - 1], new_state[x][y]
+    else:
+        raise IndexError
     # sample [1,2] to [1,1]
 
 
 def move_right(node):
     x = node.index[0]
     y = node.index[1]
-    old_state = node.initial_state
-    new_state = list(old_state)
+    new_state = node.initial_state
+    # new_state = copy.deepcopy(old_state)
 
     new_state[x][y], new_state[x][y + 1] = new_state[x][y + 1], new_state[x][y]
-    print(new_state[1][1])
-    print(node.initial_state[1][1])
+    # node.new_state = new_state
     # sample [1,1] to [1,2]
 
 
@@ -228,33 +232,61 @@ def move_right(node):
 def main():
     print("Welcome to Bertie Woosters 8-puzzle solver. \n")
     print("Enter the rows with spaces or tabs and press enter")
-    m = 3  # rows
-    n = 3  # columns
-    n_node = Node()
-    n_node.initial_state = user_input(n_node.size[0])
-    asd = n_node.initial_state
-    print(asd)
-    n_node.index = find_index(0, n_node)
-    ind = n_node.index
+    # node1 = Node()
+    # initial_state = user_input(node1.size[0])
+    # node1.initial_state = initial_state
+    # h = misplaced_tiles(node1)
+    # moves = [move_left(node1), move_right(node1), move_down(node1), move_up(node1)]
+    list = {}
+    # while h > 0
+    # for move in moves:
+    """
     try:
-        move_right(n_node)
+        print(node1.initial_state)
+        move_down(node1)
+        print_matrix(node1)
+        #k = misplaced_tiles(node1)
+        #list.update({node1: 1})
     except IndexError:
         pass
-    print(asd)
-    #print_matrix(n_node)
-    print(n_node.initial_state)
-    list = []
+    """
 
+    list = {}
+    node = Node()
+    node.initial_state = user_input(3)
+    node.index = find_index(0, node)
+    counter = 0
+    while( counter < 3):
+        for move in (move_up(node), move_down(node)):
+            print(node.index)
+            try:
+                move
+                print(node.new_state)
+                counter +=1
+            except IndexError:
+                pass
+
+
+    print_matrix(node)
+        # continue
+    # print(list.items())
+    """
+    for x in range(2):
+        node = Node()
+        node.initial_state = user_input(node.size[0])
+        list.append(node)
+    print(list[0].initial_state)
+    print(list[1].initial_state)
+    # print_matrix(n_node)
+    print_matrix(n_node)
     # n_node.distance = h
-
-    k = misplaced_tiles(n_node)
-    print(k)
-    list.append(n_node)
+    """
+    # list.append(n_node)
     # print(list[0].distance)
     # print_matrix(goal_state, m, n)
-    #val_index = find_index(0, puzzle)
+    # val_index = find_index(0, puzzle)
     # move_right(puzzle, val_index)
-    #print_matrix(puzzle, m, n)
+    # print_matrix(puzzle, m, n)
 
 
 if __name__ == '__main__':
