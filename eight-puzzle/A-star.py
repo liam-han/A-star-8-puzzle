@@ -230,8 +230,10 @@ def move_right(node):
 
 
 def main():
+
     print("Welcome to Bertie Woosters 8-puzzle solver. \n")
     print("Enter the rows with spaces or tabs and press enter")
+    """
     # node1 = Node()
     # initial_state = user_input(node1.size[0])
     # node1.initial_state = initial_state
@@ -240,7 +242,7 @@ def main():
     list = {}
     # while h > 0
     # for move in moves:
-    """
+    
     try:
         print(node1.initial_state)
         move_down(node1)
@@ -255,16 +257,14 @@ def main():
     node = Node()
     node.initial_state = user_input(3)
     node.index = find_index(0, node)
-    counter = 0
-    while( counter < 3):
-        for move in (move_up(node), move_down(node)):
-            print(node.index)
-            try:
-                move
-                print(node.new_state)
-                counter +=1
-            except IndexError:
-                pass
+    for move in (move_up(node), move_down(node)):
+        print(node.index)
+        try:
+            move
+            print(node.new_state)
+            counter +=1
+        except IndexError:
+            pass
 
 
     print_matrix(node)
